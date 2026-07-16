@@ -99,7 +99,10 @@ export function PlayScreen({ players, numImpostors, onFinish }: Props) {
                   <span className="role-word">Impostor</span>
                   {impostorIndices.length > 1 && (
                     <span className="role-team">
-                      Teammates:{" "}
+                      {impostorIndices.filter((idx) => idx !== selectedPlayer).length === 1
+                        ? "Teammate"
+                        : "Teammates"}
+                      :{" "}
                       {impostorIndices
                         .filter((idx) => idx !== selectedPlayer)
                         .map((idx) => players[idx]!.name)
