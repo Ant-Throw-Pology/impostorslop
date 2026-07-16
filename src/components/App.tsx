@@ -28,23 +28,44 @@ function loadNumImpostors(): number {
   return 1;
 }
 
+function loadRandomImpostors(): boolean {
+  try {
+    const raw = localStorage.getItem("impostor_randomImpostors");
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return false;
+}
+
 export function App() {
   const [screen, setScreen] = useState<Screen>("init");
   const [players, setPlayers] = useState<Player[]>(loadPlayers);
   const [numImpostors, setNumImpostors] = useState<number>(loadNumImpostors);
+  const [randomImpostors, setRandomImpostors] =
+    useState<boolean>(loadRandomImpostors);
   const [secretWord, setSecretWord] = useState("");
   const [impostorIndices, setImpostorIndices] = useState<number[]>([]);
   const [showRules, setShowRules] = useState(false);
 
   const handleStart = useCallback(
-    (newPlayers: Player[], newNumImpostors: number) => {
+    (newPlayers: Player[], newNumImpostors: number, isRandom: boolean) => {
       localStorage.setItem("impostor_players", JSON.stringify(newPlayers));
       localStorage.setItem(
         "impostor_numImpostors",
         JSON.stringify(newNumImpostors),
       );
+      localStorage.setItem(
+        "impostor_randomImpostors",
+        JSON.stringify(isRandom),
+      );
       setPlayers(newPlayers);
-      setNumImpostors(newNumImpostors);
+      setRandomImpostors(isRandom);
+      if (isRandom) {
+        const count = newPlayers.length;
+        const random = Math.floor(Math.random() * (count - 1)) + 1;
+        setNumImpostors(random);
+      } else {
+        setNumImpostors(newNumImpostors);
+      }
       setScreen("play");
     },
     [],
@@ -84,6 +105,8 @@ export function App() {
           setPlayers={setPlayers}
           numImpostors={numImpostors}
           setNumImpostors={setNumImpostors}
+          randomImpostors={randomImpostors}
+          setRandomImpostors={setRandomImpostors}
           onStart={handleStart}
         />
       )}

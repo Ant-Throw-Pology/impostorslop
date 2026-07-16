@@ -149,12 +149,44 @@ h1 {
 }
 
 /* Impostor Picker */
+.impostor-picker-row {
+  display: grid;
+  grid-template-columns: 1fr min-content 1fr;
+  align-items: center;
+  margin: 0.5rem 0;
+  padding-right: 1rem;
+}
 .impostor-picker {
+  grid-column: 2;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin: 0.5rem 0;
+  position: relative;
+}
+.random-btn {
+  grid-column: 3;
+  justify-self: end;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 4px;
+  line-height: 1;
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+.random-btn:hover {
+  color: #e94560;
+  background: rgba(255, 255, 255, 0.08);
+}
+.impostor-picker.disabled {
+  pointer-events: none;
+}
+.impostor-picker.disabled .icon-btn {
+  color: rgba(255, 255, 255, 0.15);
 }
 .impostor-count {
   font-size: 2.5em;
@@ -179,6 +211,9 @@ h1 {
 .impostor-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+.impostor-input.blurred {
+  filter: blur(12px);
 }
 .hint {
   color: rgba(255, 255, 255, 0.35);

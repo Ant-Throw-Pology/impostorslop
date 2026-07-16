@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { GripVertical, X, Plus, Minus } from "lucide-react";
+import { GripVertical, X, Plus, Minus, Eye, EyeOff } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -25,7 +25,9 @@ interface Props {
   setPlayers: (players: Player[]) => void;
   numImpostors: number;
   setNumImpostors: (n: number) => void;
-  onStart: (players: Player[], numImpostors: number) => void;
+  randomImpostors: boolean;
+  setRandomImpostors: (v: boolean) => void;
+  onStart: (players: Player[], numImpostors: number, random: boolean) => void;
 }
 
 function SortablePlayer({
@@ -95,9 +97,12 @@ export function InitScreen({
   setPlayers,
   numImpostors,
   setNumImpostors,
+  randomImpostors,
+  setRandomImpostors,
   onStart,
 }: Props) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const namedPlayers = players.filter((p) => p.name.trim() !== "");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -136,15 +141,15 @@ export function InitScreen({
   function handleStart() {
     const named = players.filter((p) => p.name.trim() !== "");
     if (named.length < 3) return;
-    if (numImpostors < 1 || numImpostors >= named.length) return;
-    onStart(named, numImpostors);
+    if (!randomImpostors && (numImpostors < 1 || numImpostors >= named.length))
+      return;
+    onStart(named, numImpostors, randomImpostors);
   }
 
-  const namedPlayers = players.filter((p) => p.name.trim() !== "");
   const canStart =
     namedPlayers.length >= 3 &&
-    numImpostors >= 1 &&
-    numImpostors < namedPlayers.length;
+    (randomImpostors ||
+      (numImpostors >= 1 && numImpostors < namedPlayers.length));
 
   return (
     <div className="init-screen">
@@ -201,40 +206,68 @@ export function InitScreen({
 
       <div className="section">
         <h2>Impostors</h2>
-        <div className="impostor-picker">
-          <button
-            className="icon-btn large"
-            onClick={() => setNumImpostors(Math.max(1, numImpostors - 1))}
+        <div className="impostor-picker-row">
+          <div
+            className={`impostor-picker ${randomImpostors ? "disabled" : ""}`}
           >
-            <Minus size={20} />
-          </button>
-          <input
-            id="num-impostors"
-            name="numImpostors"
-            className="impostor-input"
-            type="number"
-            min={1}
-            max={Math.max(1, namedPlayers.length - 1)}
-            value={numImpostors}
-            onChange={(e) => {
-              const v = parseInt(e.target.value, 10);
-              if (!isNaN(v) && v >= 1)
-                setNumImpostors(
-                  Math.min(v, Math.max(1, namedPlayers.length - 1)),
-                );
-            }}
-          />
+            <button
+              className="icon-btn large"
+              onClick={() => setNumImpostors(Math.max(1, numImpostors - 1))}
+              disabled={randomImpostors}
+            >
+              <Minus size={20} />
+            </button>
+            <input
+              id="num-impostors"
+              name="numImpostors"
+              className={`impostor-input ${randomImpostors ? "blurred" : ""}`}
+              type="text"
+              inputMode="numeric"
+              min={1}
+              max={Math.max(1, namedPlayers.length - 1)}
+              value={String(numImpostors)}
+              readOnly={randomImpostors}
+              disabled={randomImpostors}
+              onChange={(e) => {
+                const v = parseInt(e.target.value, 10);
+                if (!isNaN(v) && v >= 1)
+                  setNumImpostors(
+                    Math.min(v, Math.max(1, namedPlayers.length - 1)),
+                  );
+              }}
+            />
+            <button
+              className="icon-btn large"
+              onClick={() => setNumImpostors(numImpostors + 1)}
+              disabled={
+                randomImpostors || numImpostors >= namedPlayers.length - 1
+              }
+            >
+              <Plus size={20} />
+            </button>
+          </div>
           <button
-            className="icon-btn large"
-            onClick={() => setNumImpostors(numImpostors + 1)}
-            disabled={numImpostors >= namedPlayers.length - 1}
+            className="random-btn"
+            onClick={() => setRandomImpostors(!randomImpostors)}
+            title={
+              randomImpostors
+                ? "Set impostor count manually"
+                : "Randomize impostor count"
+            }
+            aria-label={
+              randomImpostors
+                ? "Set impostor count manually"
+                : "Randomize impostor count"
+            }
           >
-            <Plus size={20} />
+            {randomImpostors ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
         <p className="hint">
-          {namedPlayers.length} players, {numImpostors} impostor
-          {numImpostors !== 1 ? "s" : ""}
+          {namedPlayers.length} players,{" "}
+          {randomImpostors
+            ? "random"
+            : `${numImpostors} impostor${numImpostors !== 1 ? "s" : ""}`}
         </p>
       </div>
 
