@@ -1,4 +1,4 @@
-# bun-react-template
+# impostorslop
 
 To install dependencies:
 
