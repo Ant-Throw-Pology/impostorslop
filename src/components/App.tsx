@@ -65,7 +65,6 @@ export function App() {
       }
       setChosenImpostors(ids);
       const nonImpostors = newPlayers.filter((player) => !ids.has(player.id));
-      console.log(nonImpostors);
       setFirstPlayer(
         nonImpostors[Math.floor(Math.random() * nonImpostors.length)],
       );
