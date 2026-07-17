@@ -47,6 +47,7 @@ export function App() {
   const [chosenImpostors, setChosenImpostors] = useState<Set<string>>(
     new Set(),
   );
+  const [firstPlayer, setFirstPlayer] = useState<Player>();
   const [showRules, setShowRules] = useState(false);
 
   const gameSetup = useCallback(
@@ -54,18 +55,20 @@ export function App() {
       const numImpostors = isRandom
         ? Math.floor(Math.random() * (newPlayers.length - 1)) + 1
         : userNumImpostors;
-
-      setChosenImpostors(() => {
-        const ids = new Set<string>(),
-          players2 = [...newPlayers];
-        for (let i = 0; i < numImpostors; i++) {
-          ids.add(
-            players2.splice(Math.floor(Math.random() * players2.length), 1)[0]!
-              .id,
-          );
-        }
-        return ids;
-      });
+      const ids = new Set<string>(),
+        players2 = [...newPlayers];
+      for (let i = 0; i < numImpostors; i++) {
+        ids.add(
+          players2.splice(Math.floor(Math.random() * players2.length), 1)[0]!
+            .id,
+        );
+      }
+      setChosenImpostors(ids);
+      const nonImpostors = newPlayers.filter((player) => !ids.has(player.id));
+      console.log(nonImpostors);
+      setFirstPlayer(
+        nonImpostors[Math.floor(Math.random() * nonImpostors.length)],
+      );
       setSecretWord(pickRandomWord());
     },
     [],
@@ -88,7 +91,7 @@ export function App() {
       gameSetup(newPlayers, newNumImpostors, isRandom);
       setScreen("play");
     },
-    [],
+    [gameSetup],
   );
 
   const handleFinish = useCallback(() => {
@@ -104,7 +107,7 @@ export function App() {
   const handlePlayAgain = useCallback(() => {
     gameSetup(players, numImpostors, randomImpostors);
     setScreen("play");
-  }, [players, numImpostors, randomImpostors]);
+  }, [players, numImpostors, randomImpostors, gameSetup]);
 
   return (
     <div className="app">
@@ -124,12 +127,13 @@ export function App() {
           onStart={handleStart}
         />
       )}
-      {screen === "play" && (
+      {screen === "play" && firstPlayer && (
         <PlayScreen
           players={players}
           randomImpostors={randomImpostors}
           chosenImpostors={chosenImpostors}
           secretWord={secretWord}
+          firstPlayer={firstPlayer}
           onFinish={handleFinish}
         />
       )}

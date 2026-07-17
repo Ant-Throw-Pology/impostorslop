@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import type { Player } from "../types";
 
 interface Props {
@@ -6,6 +6,7 @@ interface Props {
   randomImpostors: boolean;
   chosenImpostors: Set<string>;
   secretWord: string;
+  firstPlayer: Player;
   onFinish: () => void;
 }
 
@@ -14,18 +15,12 @@ export function PlayScreen({
   randomImpostors,
   chosenImpostors,
   secretWord,
+  firstPlayer,
   onFinish,
 }: Props) {
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [seenPlayers, setSeenPlayers] = useState<Set<number>>(new Set());
-
-  const firstPlayer = useMemo(() => {
-    const crewmateIndices = players
-      .filter((player) => !chosenImpostors.has(player.id))
-      .map((_, i) => i);
-    return crewmateIndices[Math.floor(Math.random() * crewmateIndices.length)]!;
-  }, [players, chosenImpostors]);
 
   const isImpostor =
     selectedPlayer !== null &&
@@ -67,7 +62,7 @@ export function PlayScreen({
               </button>
             ))}
           </div>
-          <p className="start-indicator">{players[firstPlayer]!.name} starts</p>
+          <p className="start-indicator">{firstPlayer.name} starts</p>
           <div className="footer-actions">
             <button className="end-btn" onClick={() => onFinish()}>
               Game Over
