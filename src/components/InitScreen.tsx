@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { GripVertical, X, Plus, Minus, Eye, EyeOff } from "lucide-react";
 import {
   DndContext,
@@ -21,12 +21,9 @@ import type { Player } from "../types";
 import { makeId } from "../types";
 
 interface Props {
-  players: Player[];
-  setPlayers: (players: Player[]) => void;
-  numImpostors: number;
-  setNumImpostors: (n: number) => void;
-  randomImpostors: boolean;
-  setRandomImpostors: (v: boolean) => void;
+  initialPlayers: Player[];
+  initialNumImpostors: number;
+  initialRandomImpostors: boolean;
   onStart: (players: Player[], numImpostors: number, random: boolean) => void;
 }
 
@@ -93,16 +90,12 @@ function SortablePlayer({
 }
 
 export function InitScreen({
-  players,
-  setPlayers,
-  numImpostors,
-  setNumImpostors,
-  randomImpostors,
-  setRandomImpostors,
+  initialPlayers,
+  initialNumImpostors,
+  initialRandomImpostors,
   onStart,
 }: Props) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const namedPlayers = players.filter((p) => p.name.trim() !== "");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -110,6 +103,14 @@ export function InitScreen({
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
+
+  const [players, setPlayers] = useState(initialPlayers);
+  const [numImpostors, setNumImpostors] = useState(initialNumImpostors);
+  const [randomImpostors, setRandomImpostors] = useState(
+    initialRandomImpostors,
+  );
+
+  const namedPlayers = players.filter((p) => p.name.trim() !== "");
 
   function addPlayer() {
     setPlayers([...players, { id: makeId(), name: "" }]);
@@ -213,7 +214,7 @@ export function InitScreen({
             <button
               className="icon-btn large"
               onClick={() => setNumImpostors(Math.max(1, numImpostors - 1))}
-              disabled={randomImpostors}
+              disabled={randomImpostors || numImpostors <= 1}
             >
               <Minus size={20} />
             </button>
@@ -249,16 +250,9 @@ export function InitScreen({
           <button
             className="random-btn"
             onClick={() => setRandomImpostors(!randomImpostors)}
-            title={
-              randomImpostors
-                ? "Set impostor count manually"
-                : "Randomize impostor count"
-            }
-            aria-label={
-              randomImpostors
-                ? "Set impostor count manually"
-                : "Randomize impostor count"
-            }
+            aria-checked={randomImpostors}
+            title={`Randomize impostor count: ${randomImpostors ? "yes" : "no"}`}
+            aria-label={`Randomize impostor count: ${randomImpostors ? "yes" : "no"}`}
           >
             {randomImpostors ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>

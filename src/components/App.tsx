@@ -7,6 +7,7 @@ import { RulesModal } from "./RulesModal";
 import "../index.css";
 import type { Player, Screen } from "../types";
 import { makeId } from "../types";
+import { pickRandomWord } from "@/words";
 
 function loadPlayers(): Player[] {
   try {
@@ -43,8 +44,32 @@ export function App() {
   const [randomImpostors, setRandomImpostors] =
     useState<boolean>(loadRandomImpostors);
   const [secretWord, setSecretWord] = useState("");
-  const [impostorIndices, setImpostorIndices] = useState<number[]>([]);
+  const [chosenImpostors, setChosenImpostors] = useState<Set<string>>(
+    new Set(),
+  );
   const [showRules, setShowRules] = useState(false);
+
+  const gameSetup = useCallback(
+    (newPlayers: Player[], userNumImpostors: number, isRandom: boolean) => {
+      const numImpostors = isRandom
+        ? Math.floor(Math.random() * (newPlayers.length - 1)) + 1
+        : userNumImpostors;
+
+      setChosenImpostors(() => {
+        const ids = new Set<string>(),
+          players2 = [...newPlayers];
+        for (let i = 0; i < numImpostors; i++) {
+          ids.add(
+            players2.splice(Math.floor(Math.random() * players2.length), 1)[0]!
+              .id,
+          );
+        }
+        return ids;
+      });
+      setSecretWord(pickRandomWord());
+    },
+    [],
+  );
 
   const handleStart = useCallback(
     (newPlayers: Player[], newNumImpostors: number, isRandom: boolean) => {
@@ -58,36 +83,28 @@ export function App() {
         JSON.stringify(isRandom),
       );
       setPlayers(newPlayers);
+      setNumImpostors(newNumImpostors);
       setRandomImpostors(isRandom);
-      if (isRandom) {
-        const count = newPlayers.length;
-        const random = Math.floor(Math.random() * (count - 1)) + 1;
-        setNumImpostors(random);
-      } else {
-        setNumImpostors(newNumImpostors);
-      }
+      gameSetup(newPlayers, newNumImpostors, isRandom);
       setScreen("play");
     },
     [],
   );
 
-  const handleFinish = useCallback((word: string, indices: number[]) => {
-    setSecretWord(word);
-    setImpostorIndices(indices);
+  const handleFinish = useCallback(() => {
     setScreen("end");
   }, []);
 
   const handleMainMenu = useCallback(() => {
     setScreen("init");
     setSecretWord("");
-    setImpostorIndices([]);
+    setChosenImpostors(new Set());
   }, []);
 
   const handlePlayAgain = useCallback(() => {
+    gameSetup(players, numImpostors, randomImpostors);
     setScreen("play");
-    setSecretWord("");
-    setImpostorIndices([]);
-  }, []);
+  }, [players, numImpostors, randomImpostors]);
 
   return (
     <div className="app">
@@ -101,19 +118,18 @@ export function App() {
       {showRules && <RulesModal onClose={() => setShowRules(false)} />}
       {screen === "init" && (
         <InitScreen
-          players={players}
-          setPlayers={setPlayers}
-          numImpostors={numImpostors}
-          setNumImpostors={setNumImpostors}
-          randomImpostors={randomImpostors}
-          setRandomImpostors={setRandomImpostors}
+          initialPlayers={players}
+          initialNumImpostors={numImpostors}
+          initialRandomImpostors={randomImpostors}
           onStart={handleStart}
         />
       )}
       {screen === "play" && (
         <PlayScreen
           players={players}
-          numImpostors={numImpostors}
+          randomImpostors={randomImpostors}
+          chosenImpostors={chosenImpostors}
+          secretWord={secretWord}
           onFinish={handleFinish}
         />
       )}
@@ -121,7 +137,7 @@ export function App() {
         <EndScreen
           players={players}
           secretWord={secretWord}
-          impostorIndices={impostorIndices}
+          chosenImpostors={chosenImpostors}
           onMainMenu={handleMainMenu}
           onPlayAgain={handlePlayAgain}
         />

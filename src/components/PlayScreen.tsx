@@ -1,36 +1,35 @@
 import { useState, useCallback, useMemo } from "react";
-import { pickRandomWord } from "../words";
 import type { Player } from "../types";
 
 interface Props {
   players: Player[];
-  numImpostors: number;
-  onFinish: (secretWord: string, impostorIndices: number[]) => void;
+  randomImpostors: boolean;
+  chosenImpostors: Set<string>;
+  secretWord: string;
+  onFinish: () => void;
 }
 
-export function PlayScreen({ players, numImpostors, onFinish }: Props) {
-  const [impostorIndices] = useState<number[]>(() => {
-    const indices = Array.from({ length: players.length }, (_, i) => i);
-    for (let i = indices.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [indices[i], indices[j]] = [indices[j]!, indices[i]!];
-    }
-    return indices.slice(0, numImpostors);
-  });
-  const [secretWord] = useState(() => pickRandomWord());
+export function PlayScreen({
+  players,
+  randomImpostors,
+  chosenImpostors,
+  secretWord,
+  onFinish,
+}: Props) {
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [seenPlayers, setSeenPlayers] = useState<Set<number>>(new Set());
 
   const firstPlayer = useMemo(() => {
     const crewmateIndices = players
-      .map((_, i) => i)
-      .filter((i) => !impostorIndices.includes(i));
+      .filter((player) => !chosenImpostors.has(player.id))
+      .map((_, i) => i);
     return crewmateIndices[Math.floor(Math.random() * crewmateIndices.length)]!;
-  }, [players, impostorIndices]);
+  }, [players, chosenImpostors]);
 
   const isImpostor =
-    selectedPlayer !== null && impostorIndices.includes(selectedPlayer);
+    selectedPlayer !== null &&
+    chosenImpostors.has(players[selectedPlayer]?.id ?? "");
 
   const handlePlayerTap = useCallback((index: number) => {
     setSelectedPlayer(index);
@@ -68,14 +67,9 @@ export function PlayScreen({ players, numImpostors, onFinish }: Props) {
               </button>
             ))}
           </div>
-          <p className="start-indicator">
-            {players[firstPlayer]!.name} starts
-          </p>
+          <p className="start-indicator">{players[firstPlayer]!.name} starts</p>
           <div className="footer-actions">
-            <button
-              className="end-btn"
-              onClick={() => onFinish(secretWord, impostorIndices)}
-            >
+            <button className="end-btn" onClick={() => onFinish()}>
               Game Over
             </button>
           </div>
@@ -97,15 +91,16 @@ export function PlayScreen({ players, numImpostors, onFinish }: Props) {
                 <div className="reveal-role impostor-role">
                   <span className="role-label">You are an</span>
                   <span className="role-word">Impostor</span>
-                  {impostorIndices.length > 1 && (
+                  {!randomImpostors && chosenImpostors.size > 1 && (
                     <span className="role-team">
-                      {impostorIndices.filter((idx) => idx !== selectedPlayer).length === 1
-                        ? "Teammate"
-                        : "Teammates"}
-                      :{" "}
-                      {impostorIndices
-                        .filter((idx) => idx !== selectedPlayer)
-                        .map((idx) => players[idx]!.name)
+                      {chosenImpostors.size <= 2 ? "Teammate" : "Teammates"}:{" "}
+                      {players
+                        .filter(
+                          (player, idx) =>
+                            idx !== selectedPlayer &&
+                            chosenImpostors.has(player.id),
+                        )
+                        .map((player) => player.name)
                         .join(", ")}
                     </span>
                   )}

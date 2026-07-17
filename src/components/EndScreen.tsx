@@ -4,7 +4,7 @@ import type { Player } from "../types";
 interface Props {
   players: Player[];
   secretWord: string;
-  impostorIndices: number[];
+  chosenImpostors: Set<string>;
   onMainMenu: () => void;
   onPlayAgain: () => void;
 }
@@ -12,7 +12,7 @@ interface Props {
 export function EndScreen({
   players,
   secretWord,
-  impostorIndices,
+  chosenImpostors,
   onMainMenu,
   onPlayAgain,
 }: Props) {
@@ -41,14 +41,16 @@ export function EndScreen({
 
           <div className="result-card impostor-result">
             <span className="result-label">
-              The impostor{impostorIndices.length !== 1 ? "s were" : " was"}
+              The impostor{chosenImpostors.size !== 1 ? "s were" : " was"}
             </span>
             <div className="impostor-list">
-              {impostorIndices.map((idx) => (
-                <span key={idx} className="impostor-name">
-                  {players[idx]!.name}
-                </span>
-              ))}
+              {players
+                .filter((player) => chosenImpostors.has(player.id))
+                .map((player) => (
+                  <span key={player.id} className="impostor-name">
+                    {player.name}
+                  </span>
+                ))}
             </div>
           </div>
 
