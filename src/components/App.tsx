@@ -37,6 +37,14 @@ function loadRandomImpostors(): boolean {
   return false;
 }
 
+function sampleBinomial(n: number, p: number) {
+  let successes = 0;
+  for (let i = 0; i < n; i++) {
+    if (Math.random() < p) successes++;
+  }
+  return successes;
+}
+
 export function App() {
   const [screen, setScreen] = useState<Screen>("init");
   const [players, setPlayers] = useState<Player[]>(loadPlayers);
@@ -53,7 +61,7 @@ export function App() {
   const gameSetup = useCallback(
     (newPlayers: Player[], userNumImpostors: number, isRandom: boolean) => {
       const numImpostors = isRandom
-        ? Math.floor(Math.random() * (newPlayers.length - 1)) + 1
+        ? sampleBinomial(newPlayers.length - 2, 1 / 3) + 1
         : userNumImpostors;
       const ids = new Set<string>(),
         players2 = [...newPlayers];
