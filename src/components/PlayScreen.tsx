@@ -3,7 +3,7 @@ import type { Player } from "../types";
 
 interface Props {
   players: Player[];
-  randomImpostors: boolean;
+  impostorsShowTeammates: boolean;
   chosenImpostors: Set<string>;
   secretWord: string;
   firstPlayer: Player;
@@ -12,7 +12,7 @@ interface Props {
 
 export function PlayScreen({
   players,
-  randomImpostors,
+  impostorsShowTeammates,
   chosenImpostors,
   secretWord,
   firstPlayer,
@@ -86,7 +86,7 @@ export function PlayScreen({
                 <div className="reveal-role impostor-role">
                   <span className="role-label">You are an</span>
                   <span className="role-word">Impostor</span>
-                  {!randomImpostors && chosenImpostors.size > 1 && (
+                  {impostorsShowTeammates && chosenImpostors.size > 1 && (
                     <span className="role-team">
                       {chosenImpostors.size <= 2 ? "Teammate" : "Teammates"}:{" "}
                       {players

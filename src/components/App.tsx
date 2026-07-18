@@ -8,6 +8,10 @@ import "../index.css";
 import type { Player, Screen } from "../types";
 import { makeId } from "../types";
 import { pickRandomWord } from "@/words";
+import {
+  otherSettingsDefaults,
+  type OtherSettings,
+} from "./OtherSettingsModal";
 
 function loadPlayers(): Player[] {
   try {
@@ -37,6 +41,14 @@ function loadRandomImpostors(): boolean {
   return false;
 }
 
+function loadOtherSettings(): OtherSettings {
+  try {
+    const raw = localStorage.getItem("impostor_otherSettings");
+    if (raw) return { ...otherSettingsDefaults, ...JSON.parse(raw) };
+  } catch {}
+  return otherSettingsDefaults;
+}
+
 function sampleBinomial(n: number, p: number) {
   let successes = 0;
   for (let i = 0; i < n; i++) {
@@ -51,6 +63,8 @@ export function App() {
   const [numImpostors, setNumImpostors] = useState<number>(loadNumImpostors);
   const [randomImpostors, setRandomImpostors] =
     useState<boolean>(loadRandomImpostors);
+  const [otherSettings, setOtherSettings] =
+    useState<OtherSettings>(loadOtherSettings);
   const [secretWord, setSecretWord] = useState("");
   const [chosenImpostors, setChosenImpostors] = useState<Set<string>>(
     new Set(),
@@ -59,9 +73,17 @@ export function App() {
   const [showRules, setShowRules] = useState(false);
 
   const gameSetup = useCallback(
-    (newPlayers: Player[], userNumImpostors: number, isRandom: boolean) => {
+    (
+      newPlayers: Player[],
+      userNumImpostors: number,
+      isRandom: boolean,
+      otherSettings: OtherSettings,
+    ) => {
       const numImpostors = isRandom
-        ? sampleBinomial(newPlayers.length - 2, 1 / 3) + 1
+        ? otherSettings.chaosModeEnabled &&
+          Math.random() < otherSettings.chaosModeChance
+          ? newPlayers.length - 1
+          : sampleBinomial(newPlayers.length - 2, 1 / 3) + 1
         : userNumImpostors;
       const ids = new Set<string>(),
         players2 = [...newPlayers];
@@ -82,7 +104,12 @@ export function App() {
   );
 
   const handleStart = useCallback(
-    (newPlayers: Player[], newNumImpostors: number, isRandom: boolean) => {
+    (
+      newPlayers: Player[],
+      newNumImpostors: number,
+      isRandom: boolean,
+      otherSettings: OtherSettings,
+    ) => {
       localStorage.setItem("impostor_players", JSON.stringify(newPlayers));
       localStorage.setItem(
         "impostor_numImpostors",
@@ -92,10 +119,15 @@ export function App() {
         "impostor_randomImpostors",
         JSON.stringify(isRandom),
       );
+      localStorage.setItem(
+        "impostor_otherSettings",
+        JSON.stringify(otherSettings),
+      );
       setPlayers(newPlayers);
       setNumImpostors(newNumImpostors);
       setRandomImpostors(isRandom);
-      gameSetup(newPlayers, newNumImpostors, isRandom);
+      setOtherSettings(otherSettings);
+      gameSetup(newPlayers, newNumImpostors, isRandom, otherSettings);
       setScreen("play");
     },
     [gameSetup],
@@ -112,9 +144,9 @@ export function App() {
   }, []);
 
   const handlePlayAgain = useCallback(() => {
-    gameSetup(players, numImpostors, randomImpostors);
+    gameSetup(players, numImpostors, randomImpostors, otherSettings);
     setScreen("play");
-  }, [players, numImpostors, randomImpostors, gameSetup]);
+  }, [players, numImpostors, randomImpostors, otherSettings, gameSetup]);
 
   return (
     <div className="app">
@@ -131,13 +163,20 @@ export function App() {
           initialPlayers={players}
           initialNumImpostors={numImpostors}
           initialRandomImpostors={randomImpostors}
+          initialOtherSettings={otherSettings}
           onStart={handleStart}
         />
       )}
       {screen === "play" && firstPlayer && (
         <PlayScreen
           players={players}
-          randomImpostors={randomImpostors}
+          impostorsShowTeammates={
+            otherSettings.impostorsShowTeammates == "always"
+              ? true
+              : otherSettings.impostorsShowTeammates == "only-static"
+                ? !randomImpostors
+                : false
+          }
           chosenImpostors={chosenImpostors}
           secretWord={secretWord}
           firstPlayer={firstPlayer}

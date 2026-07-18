@@ -1,5 +1,13 @@
 import { useRef, useState } from "react";
-import { GripVertical, X, Plus, Minus, Eye, EyeOff } from "lucide-react";
+import {
+  GripVertical,
+  X,
+  Plus,
+  Minus,
+  Eye,
+  EyeOff,
+  Settings,
+} from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -19,12 +27,19 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import type { Player } from "../types";
 import { makeId } from "../types";
+import { OtherSettingsModal, type OtherSettings } from "./OtherSettingsModal";
 
 interface Props {
   initialPlayers: Player[];
   initialNumImpostors: number;
   initialRandomImpostors: boolean;
-  onStart: (players: Player[], numImpostors: number, random: boolean) => void;
+  initialOtherSettings: OtherSettings;
+  onStart: (
+    players: Player[],
+    numImpostors: number,
+    random: boolean,
+    otherSettings: OtherSettings,
+  ) => void;
 }
 
 function SortablePlayer({
@@ -93,6 +108,7 @@ export function InitScreen({
   initialPlayers,
   initialNumImpostors,
   initialRandomImpostors,
+  initialOtherSettings,
   onStart,
 }: Props) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -109,6 +125,9 @@ export function InitScreen({
   const [randomImpostors, setRandomImpostors] = useState(
     initialRandomImpostors,
   );
+  const [otherSettings, setOtherSettings] = useState(initialOtherSettings);
+
+  const [showOtherSettings, setShowOtherSettings] = useState(false);
 
   const namedPlayers = players.filter((p) => p.name.trim() !== "");
 
@@ -144,7 +163,7 @@ export function InitScreen({
     if (named.length < 3) return;
     if (!randomImpostors && (numImpostors < 1 || numImpostors >= named.length))
       return;
-    onStart(named, numImpostors, randomImpostors);
+    onStart(named, numImpostors, randomImpostors, otherSettings);
   }
 
   const canStart =
@@ -208,6 +227,15 @@ export function InitScreen({
       <div className="section">
         <h2>Impostors</h2>
         <div className="impostor-picker-row">
+          <button
+            className="random-btn"
+            onClick={() => setRandomImpostors(!randomImpostors)}
+            aria-checked={randomImpostors}
+            title={`Randomize impostor count: ${randomImpostors ? "yes" : "no"}`}
+            aria-label={`Randomize impostor count: ${randomImpostors ? "yes" : "no"}`}
+          >
+            {randomImpostors ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
           <div
             className={`impostor-picker ${randomImpostors ? "disabled" : ""}`}
           >
@@ -248,13 +276,11 @@ export function InitScreen({
             </button>
           </div>
           <button
-            className="random-btn"
-            onClick={() => setRandomImpostors(!randomImpostors)}
-            aria-checked={randomImpostors}
-            title={`Randomize impostor count: ${randomImpostors ? "yes" : "no"}`}
-            aria-label={`Randomize impostor count: ${randomImpostors ? "yes" : "no"}`}
+            className="other-settings-btn"
+            onClick={() => setShowOtherSettings(true)}
+            title="Other settings"
           >
-            {randomImpostors ? <EyeOff size={18} /> : <Eye size={18} />}
+            <Settings size={18} />
           </button>
         </div>
         <p className="hint">
@@ -268,6 +294,16 @@ export function InitScreen({
       <button className="start-btn" onClick={handleStart} disabled={!canStart}>
         Start Game
       </button>
+
+      {showOtherSettings && (
+        <OtherSettingsModal
+          otherSettings={otherSettings}
+          setOtherSettings={setOtherSettings}
+          onClose={() => {
+            setShowOtherSettings(false);
+          }}
+        />
+      )}
     </div>
   );
 }
