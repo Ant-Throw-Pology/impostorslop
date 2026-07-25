@@ -27,11 +27,12 @@ body {
 }
 h1 {
   font-size: 2.5em;
-  margin: 0.5rem 0;
-  background: linear-gradient(135deg, #e94560, #0f3460);
+  margin: 0.5rem auto;
+  background: linear-gradient(135deg, #e94560, #1264ca);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  width: max-content;
 }
 .subtitle {
   color: rgba(255, 255, 255, 0.85);

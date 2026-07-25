@@ -12,7 +12,7 @@ Helper for the word game Impostor that I vibe-coded because the one we were usin
   Impostors get a hint at what the word might be (this depends on your settings).
 - If an impostor says the secret word by accident, they immediately lose.
 - After 2 rounds, players vote on who they think the impostors are.
-- Impostors are revealed, then they get one chance to guess the secret word.
+- Impostors are revealed, then they each get one chance to guess the secret word.
 - If all impostors are voted out (before all crewmates are), the crewmates win.
 
 ## Usage
