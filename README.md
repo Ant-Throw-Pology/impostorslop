@@ -6,10 +6,14 @@ Helper for the word game Impostor that I vibe-coded because the one we were usin
 
 - Each player is randomly assigned a role: **Impostor** or **Crewmate**.
 - A secret word is shown to all crewmates. Impostors do _not_ see it.
-- Players take turns saying a word related to the secret word. No word may be repeated, and you cannot say the secret word itself.
-- Impostors must bluff and figure out the topic from what others say.
+- Players take turns saying a word related to the secret word. No word may be
+  repeated, and you cannot say the secret word itself.
+- Impostors must bluff and figure out the topic from what others say _OR_
+  Impostors get a hint at what the word might be (this depends on your settings).
+- If an impostor says the secret word by accident, they immediately lose.
 - After 2 rounds, players vote on who they think the impostors are.
 - Impostors are revealed, then they get one chance to guess the secret word.
+- If all impostors are voted out (before all crewmates are), the crewmates win.
 
 ## Usage
 

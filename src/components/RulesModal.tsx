@@ -26,14 +26,24 @@ export function RulesModal({ onClose }: Props) {
             may be repeated, and you cannot say the secret word itself.
           </li>
           <li>
-            Impostors must bluff and figure out the topic from what others say.
+            Impostors must bluff and figure out the topic from what others say{" "}
+            <em>OR</em> Impostors get a hint at what the word might be (this
+            depends on your settings).
+          </li>
+          <li>
+            If an impostor says the secret word by accident, they immediately
+            lose.
           </li>
           <li>
             After 2 rounds, players vote on who they think the impostors are.
           </li>
           <li>
-            Impostors are revealed, then they get one chance to guess the secret
-            word.
+            Impostors are revealed, then they each get one chance to guess the
+            secret word - if correct, they win.
+          </li>
+          <li>
+            If all impostors are voted out (before all crewmates are), the
+            crewmates win.
           </li>
         </ol>
       </div>

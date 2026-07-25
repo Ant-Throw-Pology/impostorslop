@@ -600,6 +600,7 @@ h1 {
 }
 .rules-list li {
   margin-bottom: 0.4rem;
+  text-wrap: balance;
 }
 .rules-list strong {
   color: #e94560;
