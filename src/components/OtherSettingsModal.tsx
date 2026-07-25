@@ -142,9 +142,9 @@ export function OtherSettingsModal({
               }));
             }}
           >
-          <option value="always">Always</option>
-          <option value="only-static">Only when count not randomized</option>
-          <option value="never">Never</option>
+            <option value="always">Always</option>
+            <option value="only-static">Only when count not randomized</option>
+            <option value="never">Never</option>
           </select>
         </label>
         <div>
@@ -204,9 +204,7 @@ export function OtherSettingsModal({
               type="checkbox"
               id={`${id}-differentImpostorHints`}
               checked={otherSettings.differentImpostorHints}
-              disabled={
-                otherSettings.startingPlayerMode !== "impostor-hints"
-              }
+              disabled={otherSettings.startingPlayerMode !== "impostor-hints"}
               onChange={(event) =>
                 setOtherSettings((prev) => ({
                   ...prev,

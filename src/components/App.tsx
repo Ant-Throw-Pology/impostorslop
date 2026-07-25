@@ -104,9 +104,7 @@ export function App() {
           newHintWords.set(
             id,
             otherSettings.differentImpostorHints
-              ? possibleHints[
-                  Math.floor(Math.random() * possibleHints.length)
-                ]!
+              ? possibleHints[Math.floor(Math.random() * possibleHints.length)]!
               : sharedHint,
           );
         }
@@ -121,9 +119,7 @@ export function App() {
         );
       } else {
         setHintWords(new Map());
-        const nonImpostors = newPlayers.filter(
-          (player) => !ids.has(player.id),
-        );
+        const nonImpostors = newPlayers.filter((player) => !ids.has(player.id));
         setFirstPlayer(
           nonImpostors[Math.floor(Math.random() * nonImpostors.length)],
         );

@@ -25,7 +25,9 @@ export function EndScreen({
 
       <div className="reveal-results">
         <div className="result-wrapper">
-          <div className={`result-card word-result${revealedWord ? " revealed" : ""}`}>
+          <div
+            className={`result-card word-result${revealedWord ? " revealed" : ""}`}
+          >
             <span className="result-label">The secret word was</span>
             <span className="result-value">{secretWord}</span>
           </div>
@@ -40,7 +42,9 @@ export function EndScreen({
         </div>
 
         <div className="result-wrapper">
-          <div className={`result-card impostor-result${revealedImpostors ? " revealed" : ""}`}>
+          <div
+            className={`result-card impostor-result${revealedImpostors ? " revealed" : ""}`}
+          >
             <span className="result-label">
               The impostor{chosenImpostors.size !== 1 ? "s were" : " was"}
             </span>
