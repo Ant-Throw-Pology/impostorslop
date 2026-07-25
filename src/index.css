@@ -224,6 +224,9 @@ h1 {
   width: calc(100% - 7ch);
   margin: 0;
 }
+.radio-label {
+  display: block;
+}
 .impostor-picker.disabled {
   pointer-events: none;
 }
@@ -404,15 +407,17 @@ h1 {
 .word-role .role-word {
   color: #4ecdc4;
 }
-.role-team {
+.role-team,
+.role-hint {
   font-size: 0.9em;
   color: rgba(255, 255, 255, 0.6);
   margin-top: 0.2rem;
 }
-.role-hint {
+.role-instructions {
   font-size: 0.85em;
   color: rgba(255, 255, 255, 0.35);
   margin-top: 0.3rem;
+  font-style: italic;
 }
 .hide-btn {
   padding: 0.7rem 2rem;
@@ -430,6 +435,9 @@ h1 {
 }
 
 /* End Screen */
+.result-wrapper {
+  position: relative;
+}
 .reveal-results {
   display: flex;
   flex-direction: column;
@@ -445,6 +453,18 @@ h1 {
   align-items: center;
   gap: 0.4rem;
   border: 1px solid rgba(255, 255, 255, 0.06);
+  filter: blur(10px);
+  transition: filter 0.3s;
+}
+.result-card.revealed {
+  filter: none;
+}
+.reveal-btn.overlay {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: fit-content;
+  height: fit-content;
 }
 .result-label {
   font-size: 0.85em;
@@ -475,7 +495,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  margin-top: 0.5rem;
+  margin-top: 1.2rem;
 }
 .play-again-btn {
   padding: 0.8rem 2rem;

@@ -70,6 +70,7 @@ export function App() {
     new Set(),
   );
   const [firstPlayer, setFirstPlayer] = useState<Player>();
+  const [hintWords, setHintWords] = useState<Map<string, string>>(new Map());
   const [showRules, setShowRules] = useState(false);
 
   const gameSetup = useCallback(
@@ -94,11 +95,40 @@ export function App() {
         );
       }
       setChosenImpostors(ids);
-      const nonImpostors = newPlayers.filter((player) => !ids.has(player.id));
-      setFirstPlayer(
-        nonImpostors[Math.floor(Math.random() * nonImpostors.length)],
-      );
-      setSecretWord(pickRandomWord());
+      const [secretWord, possibleHints] = pickRandomWord();
+      if (otherSettings.startingPlayerMode === "impostor-hints") {
+        const newHintWords = new Map<string, string>();
+        const sharedHint =
+          possibleHints[Math.floor(Math.random() * possibleHints.length)]!;
+        for (const id of ids) {
+          newHintWords.set(
+            id,
+            otherSettings.differentImpostorHints
+              ? possibleHints[
+                  Math.floor(Math.random() * possibleHints.length)
+                ]!
+              : sharedHint,
+          );
+        }
+        setHintWords(newHintWords);
+        setFirstPlayer(
+          newPlayers[Math.floor(Math.random() * newPlayers.length)],
+        );
+      } else if (otherSettings.startingPlayerMode === "none") {
+        setHintWords(new Map());
+        setFirstPlayer(
+          newPlayers[Math.floor(Math.random() * newPlayers.length)],
+        );
+      } else {
+        setHintWords(new Map());
+        const nonImpostors = newPlayers.filter(
+          (player) => !ids.has(player.id),
+        );
+        setFirstPlayer(
+          nonImpostors[Math.floor(Math.random() * nonImpostors.length)],
+        );
+      }
+      setSecretWord(secretWord);
     },
     [],
   );
@@ -141,6 +171,7 @@ export function App() {
     setScreen("init");
     setSecretWord("");
     setChosenImpostors(new Set());
+    setHintWords(new Map());
   }, []);
 
   const handlePlayAgain = useCallback(() => {
@@ -180,6 +211,7 @@ export function App() {
           chosenImpostors={chosenImpostors}
           secretWord={secretWord}
           firstPlayer={firstPlayer}
+          hintWords={hintWords}
           onFinish={handleFinish}
         />
       )}

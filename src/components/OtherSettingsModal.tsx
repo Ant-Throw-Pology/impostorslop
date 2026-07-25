@@ -23,12 +23,26 @@ export interface OtherSettings {
    * - `never`: Never show teammates
    */
   impostorsShowTeammates: "always" | "never" | "only-static";
+  /**
+   * Controls starting player behavior:
+   * - `start-non-impostor`: Starting player is always a non-impostor (default)
+   * - `impostor-hints`: Starting player is random; impostors receive hint words
+   * - `none`: Starting player is random; no hints
+   */
+  startingPlayerMode: "start-non-impostor" | "impostor-hints" | "none";
+  /**
+   * When startingPlayerMode is "impostor-hints", controls whether each
+   * impostor gets a different randomly chosen hint word or all share one.
+   */
+  differentImpostorHints: boolean;
 }
 
 export const otherSettingsDefaults: OtherSettings = {
   chaosModeEnabled: true,
   chaosModeChance: 0.1,
   impostorsShowTeammates: "only-static",
+  startingPlayerMode: "start-non-impostor",
+  differentImpostorHints: true,
 };
 
 export function OtherSettingsModal({
@@ -128,11 +142,81 @@ export function OtherSettingsModal({
               }));
             }}
           >
-            <option value="always">Always</option>
-            <option value="only-static">Only when count not randomized</option>
-            <option value="never">Never</option>
+          <option value="always">Always</option>
+          <option value="only-static">Only when count not randomized</option>
+          <option value="never">Never</option>
           </select>
         </label>
+        <div>
+          <h3>Impostor hints:</h3>
+          <label className="radio-label" htmlFor={`${id}-mode-non-impostor`}>
+            <input
+              type="radio"
+              id={`${id}-mode-non-impostor`}
+              name={`${id}-startingPlayerMode`}
+              checked={
+                otherSettings.startingPlayerMode === "start-non-impostor"
+              }
+              onChange={() =>
+                setOtherSettings((prev) => ({
+                  ...prev,
+                  startingPlayerMode: "start-non-impostor",
+                }))
+              }
+            />
+            Start on a non-impostor
+          </label>
+          <label className="radio-label" htmlFor={`${id}-mode-impostor-hints`}>
+            <input
+              type="radio"
+              id={`${id}-mode-impostor-hints`}
+              name={`${id}-startingPlayerMode`}
+              checked={otherSettings.startingPlayerMode === "impostor-hints"}
+              onChange={() =>
+                setOtherSettings((prev) => ({
+                  ...prev,
+                  startingPlayerMode: "impostor-hints",
+                }))
+              }
+            />
+            Impostors get hints
+          </label>
+          <label className="radio-label" htmlFor={`${id}-mode-none`}>
+            <input
+              type="radio"
+              id={`${id}-mode-none`}
+              name={`${id}-startingPlayerMode`}
+              checked={otherSettings.startingPlayerMode === "none"}
+              onChange={() =>
+                setOtherSettings((prev) => ({
+                  ...prev,
+                  startingPlayerMode: "none",
+                }))
+              }
+            />
+            None &#x1F608;
+          </label>
+          <label
+            className="radio-label"
+            htmlFor={`${id}-differentImpostorHints`}
+          >
+            <input
+              type="checkbox"
+              id={`${id}-differentImpostorHints`}
+              checked={otherSettings.differentImpostorHints}
+              disabled={
+                otherSettings.startingPlayerMode !== "impostor-hints"
+              }
+              onChange={(event) =>
+                setOtherSettings((prev) => ({
+                  ...prev,
+                  differentImpostorHints: event.target.checked,
+                }))
+              }
+            />
+            Give each impostor a different hint
+          </label>
+        </div>
       </div>
     </div>
   );

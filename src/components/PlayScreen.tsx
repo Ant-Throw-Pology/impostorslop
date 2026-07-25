@@ -7,6 +7,7 @@ interface Props {
   chosenImpostors: Set<string>;
   secretWord: string;
   firstPlayer: Player;
+  hintWords: Map<string, string>;
   onFinish: () => void;
 }
 
@@ -16,6 +17,7 @@ export function PlayScreen({
   chosenImpostors,
   secretWord,
   firstPlayer,
+  hintWords,
   onFinish,
 }: Props) {
   const [selectedPlayer, setSelectedPlayer] = useState<number | null>(null);
@@ -86,6 +88,12 @@ export function PlayScreen({
                 <div className="reveal-role impostor-role">
                   <span className="role-label">You are an</span>
                   <span className="role-word">Impostor</span>
+                  {hintWords.size > 0 &&
+                    hintWords.has(players[selectedPlayer]!.id) && (
+                      <span className="role-hint">
+                        Hint: {hintWords.get(players[selectedPlayer]!.id)}
+                      </span>
+                    )}
                   {impostorsShowTeammates && chosenImpostors.size > 1 && (
                     <span className="role-team">
                       {chosenImpostors.size <= 2 ? "Teammate" : "Teammates"}:{" "}
@@ -99,13 +107,15 @@ export function PlayScreen({
                         .join(", ")}
                     </span>
                   )}
-                  <span className="role-hint">Bluff your way through!</span>
+                  <span className="role-instructions">
+                    Bluff your way through!
+                  </span>
                 </div>
               ) : (
                 <div className="reveal-role word-role">
                   <span className="role-label">The word is</span>
                   <span className="role-word">{secretWord}</span>
-                  <span className="role-hint">
+                  <span className="role-instructions">
                     Describe it without saying it!
                   </span>
                 </div>
